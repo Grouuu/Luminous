@@ -12,6 +12,7 @@ public class Builder : MonoBehaviour
 	public int maxPosition;
 
 	protected Store store;
+	protected Grid grid;
 	protected Slot[] slots;
 	protected List<Slot> selectedSlots = new List<Slot>();
 
@@ -20,6 +21,7 @@ public class Builder : MonoBehaviour
 	void Awake()
 	{
 		store = FindObjectOfType<Store>();
+		grid = FindObjectOfType<Grid>();
 	}
 
 	void Start()
@@ -80,10 +82,7 @@ public class Builder : MonoBehaviour
 		}
 
 		foreach (Slot slot in slots)
-		{
-			Debug.Log(slot.column + "/" + slot.row + " " + positions[slot.column, slot.row]);
 			slot.SetAvailable(positions[slot.column, slot.row] == selectedSlots.Count);
-		}
 	}
 
 	protected void CreateSlots()
@@ -109,10 +108,14 @@ public class Builder : MonoBehaviour
 
 	protected void Release()
 	{
+		Stack<Cube> cubes = store.RemoveSelectedCubes();
+
+		foreach(Slot slot in selectedSlots)
+			grid.AddCube(cubes.Pop(), grid.columns - (columns - slot.column), slot.row);
+
 		added = 0;
 		selectedSlots = new List<Slot>();
 		EmptySlots();
-		store.RemoveSelectedCubes();
 		RestrictSlots();
 	}
 

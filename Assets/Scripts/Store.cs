@@ -22,13 +22,9 @@ public class Store : MonoBehaviour
 			Vector3 direction = target - cube.transform.position;
 
 			if (direction.magnitude > magnitudeMagnet)
-			{
 				cube.transform.position += direction.normalized * speed * Time.deltaTime;
-			}
 			else
-			{
 				cube.transform.position = target;
-			}
 		}
 	}
 
@@ -67,26 +63,21 @@ public class Store : MonoBehaviour
 		return false;
 	}
 
-	public void RemoveSelectedCubes()
+	public Stack<Cube> RemoveSelectedCubes()
 	{
+		Stack<Cube> selectedCubes = new Stack<Cube>();
+
 		if (selected > 0)
 		{
-			Cube[] selectedCubes = new Cube[selected];
-
 			for (int index = 0; index < selected; index++)
-			{
-				selectedCubes[index] = cubes[index];
-			}
+				selectedCubes.Push(cubes[index]);
 
 			for (int index = 0; index < selected; index++)
 				cubes.RemoveAt(0);
-
-			for (int index = 0; index < selectedCubes.Length; index++)
-			{
-				Destroy(selectedCubes[index].gameObject);
-			}
 		}
 
 		selected = 0;
+
+		return selectedCubes;
 	}
 }
