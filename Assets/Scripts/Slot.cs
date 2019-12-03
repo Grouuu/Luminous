@@ -43,30 +43,40 @@ public class Slot : MonoBehaviour
 		UpdateState();
 	}
 
-	public void UpdateState()
+	public void SetAvailable(bool value)
+	{
+		available = value;
+		UpdateState();
+	}
+
+	public void SetEmpty()
+	{
+		empty = true;
+		UpdateState();
+	}
+
+	protected void UpdateState()
 	{
 		if (!available)
 		{
+			// disable
 			bg_empty.gameObject.SetActive(false);
 			bg_full.gameObject.SetActive(false);
 			bg_disable.gameObject.SetActive(true);
 		}
 		else if (!empty)
 		{
+			// full
 			bg_empty.gameObject.SetActive(false);
 			bg_full.gameObject.SetActive(true);
 			bg_disable.gameObject.SetActive(false);
 		}
 		else
 		{
+			// empty
 			bg_empty.gameObject.SetActive(true);
 			bg_full.gameObject.SetActive(false);
 			bg_disable.gameObject.SetActive(false);
 		}
-	}
-
-	public void SetAvailable(bool value)
-	{
-		available = value;
 	}
 }

@@ -83,7 +83,6 @@ public class Store : MonoBehaviour
 
 			for (int index = 0; index < selectedCubes.Length; index++)
 			{
-				Debug.Log(selectedCubes[index]);
 				Destroy(selectedCubes[index].gameObject);
 			}
 		}

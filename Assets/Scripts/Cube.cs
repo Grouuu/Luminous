@@ -48,7 +48,13 @@ public class Cube : MonoBehaviour
 		Destroy(gameObject);
 	}
 
-	public void UpdateState()
+	public void SetAvailable(bool value)
+	{
+		available = value;
+		UpdateState();
+	}
+
+	protected void UpdateState()
 	{
 		if (available)
 		{
@@ -60,11 +66,5 @@ public class Cube : MonoBehaviour
 			bg_enable.gameObject.SetActive(false);
 			bg_disable.gameObject.SetActive(true);
 		}
-	}
-
-	public void SetAvailable(bool value)
-	{
-		available = value;
-		UpdateState();
 	}
 }

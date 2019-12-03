@@ -1858,7 +1858,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   firstPosition: {x: 13.1, y: 8.7, z: 0}
-  margin: 0.1
+  margin: -0.1
   speed: 50
   magnitudeMagnet: 0.4
   maxBuffer: 8

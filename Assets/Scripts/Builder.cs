@@ -13,35 +13,35 @@ public class Builder : MonoBehaviour
 
 	protected Store store;
 	protected Slot[] slots;
-	protected bool[,] positions;
+	protected List<Slot> selectedSlots = new List<Slot>();
 
 	protected int added = 0;
 
 	void Awake()
 	{
 		store = FindObjectOfType<Store>();
-		positions = new bool[columns, rows];
 	}
 
 	void Start()
 	{
-		EmptyPositions();
 		CreateSlots();
 		EmptySlots();
 	}
 
+	void Update()
+	{
+		if (selectedSlots.Count >= maxPosition)
+			Release();
+	}
+
 	public bool AddCube(int column, int row)
 	{
-		// TODO: check if valid position OR invalidate unvalid slots
-
 		if (!store.SelectCube())
 			return false;
 
 		added++;
-		positions[column, row] = true;
-
-		if (added >= maxPosition)
-			Release();
+		selectedSlots.Add(GetSlot(column, row));
+		RestrictSlots();
 
 		return true;
 	}
@@ -54,9 +54,36 @@ public class Builder : MonoBehaviour
 		if (added > 0)
 			added--;
 
-		positions[column, row] = false;
+		selectedSlots.Remove(GetSlot(column, row));
+		RestrictSlots();
 
 		return true;
+	}
+
+	protected void RestrictSlots()
+	{
+		int[,] positions = new int[columns, rows];
+
+		foreach (Slot slot in selectedSlots)
+		{
+			for (int column = -1; column <= 1; column++)
+			{
+				for (int row = -1; row <= 1; row++)
+				{
+					int targetCol = slot.column + column;
+					int targetRow = slot.row + row;
+
+					if (targetCol >= 0 && targetCol < columns && targetRow >= 0 && targetRow < rows)
+						positions[targetCol, targetRow]++;
+				}
+			}
+		}
+
+		foreach (Slot slot in slots)
+		{
+			Debug.Log(slot.column + "/" + slot.row + " " + positions[slot.column, slot.row]);
+			slot.SetAvailable(positions[slot.column, slot.row] == selectedSlots.Count);
+		}
 	}
 
 	protected void CreateSlots()
@@ -83,22 +110,16 @@ public class Builder : MonoBehaviour
 	protected void Release()
 	{
 		added = 0;
-		EmptyPositions();
+		selectedSlots = new List<Slot>();
 		EmptySlots();
 		store.RemoveSelectedCubes();
-	}
-
-	protected void EmptyPositions()
-	{
-		for (int column = 0; column < columns; column++)
-			for (int row = 0; row < rows; row++)
-				positions[column, row] = false;
+		RestrictSlots();
 	}
 
 	protected void EmptySlots()
 	{
 		foreach (Slot slot in slots)
-			slot.SetAvailable(true);
+			slot.SetEmpty();
 	}
 
 	protected Slot GetSlot(int column, int row)
