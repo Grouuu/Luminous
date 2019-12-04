@@ -68,7 +68,7 @@ public class Builder : MonoBehaviour
 
 		foreach (Slot slot in selectedSlots)
 		{
-			for (int column = -1; column <= 1; column++)
+			for (int column = -1; column < columns; column++)
 			{
 				for (int row = -1; row <= 1; row++)
 				{

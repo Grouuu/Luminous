@@ -26,6 +26,8 @@ public class Grid : MonoBehaviour
 
 				if (cube)
 				{
+					MoveToEmpty(column, row);
+
 					Vector3 target = GetPosition(cube, column, row);
 					Vector3 direction = target - cube.transform.position;
 
@@ -46,7 +48,27 @@ public class Grid : MonoBehaviour
 			cube.transform.position = GetPosition(cube, column, row);
 		}
 		else
-			Debug.LogError("Cube already exists in " + column + "/" + row);
+		{
+			Destroy(cube.gameObject);
+		}
+	}
+
+	protected void MoveToEmpty(int column, int row)
+	{
+		Cube cube = grid[column, row];
+
+		if (!cube)
+			return;
+
+		for (int index = 0; index < column; index++)
+		{
+			if(!grid[index, row])
+			{
+				grid[column, row] = null;
+				grid[index, row] = cube;
+				return;
+			}
+		}
 	}
 
 	protected Vector3 GetPosition(Cube cube, int column, int row)

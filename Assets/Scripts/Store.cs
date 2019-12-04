@@ -4,14 +4,30 @@ using UnityEngine;
 
 public class Store : MonoBehaviour
 {
+	public Cube cubePrefabs;
 	public Vector3 firstPosition;
 	public float margin;
 	public float speed;
 	public float magnitudeMagnet;
 	public int maxBuffer;
 
+	[Header("Debug")]
+
+	public int startCubes;
+	public bool infiniteCubes;
+
 	protected List<Cube> cubes = new List<Cube>();
 	protected int selected = 0;
+
+	void Start()
+	{
+		// Debug
+
+		for (int i = 0; i < startCubes; i++)
+			AddCube(CreateFakeCube(i));
+
+		//
+	}
 
 	void Update()
 	{
@@ -65,6 +81,14 @@ public class Store : MonoBehaviour
 
 	public Stack<Cube> RemoveSelectedCubes()
 	{
+		// Debug
+
+		if (infiniteCubes)
+			for (int index = 0; index < selected; index++)
+				AddCube(CreateFakeCube(cubes.Count - 1 - index));
+
+		//
+
 		Stack<Cube> selectedCubes = new Stack<Cube>();
 
 		if (selected > 0)
@@ -79,5 +103,16 @@ public class Store : MonoBehaviour
 		selected = 0;
 
 		return selectedCubes;
+	}
+
+	/**
+	 * Debug
+	 * */
+	protected Cube CreateFakeCube(int index)
+	{
+		Cube cube = Cube.Instantiate(cubePrefabs);
+		cube.SetFree(false);
+		cube.transform.position = new Vector3(firstPosition.x - (cube.GetComponent<BoxCollider>().bounds.size.x + margin) * index, firstPosition.y, 0);
+		return cube;
 	}
 }

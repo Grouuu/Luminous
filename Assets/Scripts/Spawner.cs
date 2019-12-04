@@ -42,7 +42,7 @@ public class Spawner : MonoBehaviour
 
 	protected void SpawnCube()
 	{
-		Cube cube = Instantiate(cubePrefabs);
+		Cube cube = Instantiate<Cube>(cubePrefabs);
 		cube.speed = speed;
 		cube.transform.position = new Vector3(
 			Random.Range(playgroundBounds.x, playgroundBounds.x + playgroundBounds.width),

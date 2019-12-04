@@ -7,7 +7,7 @@ public class Cube : MonoBehaviour
 	[HideInInspector] public float speed;
 
 	protected Rigidbody rb;
-	protected GameController game;
+	protected Store store;
 	protected bool free = true;
 	protected bool available = true;
 
@@ -17,7 +17,7 @@ public class Cube : MonoBehaviour
 	void Awake()
 	{
 		rb = GetComponent<Rigidbody>();
-		game = FindObjectOfType<GameController>();
+		store = FindObjectOfType<Store>();
 
 		bg_enable = gameObject.transform.Find("cube_on");
 		bg_disable = gameObject.transform.Find("cube_off");
@@ -37,7 +37,7 @@ public class Cube : MonoBehaviour
 			return;
 
 		free = false;
-		bool added = game.store.AddCube(this);
+		bool added = store.AddCube(this);
 
 		if (!added)
 			Destroy(gameObject);
@@ -52,6 +52,11 @@ public class Cube : MonoBehaviour
 	{
 		available = value;
 		UpdateState();
+	}
+
+	public void SetFree(bool value)
+	{
+		free = value;
 	}
 
 	protected void UpdateState()

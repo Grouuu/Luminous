@@ -958,7 +958,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &354892520
 Transform:
   m_ObjectHideFlags: 0
@@ -1844,9 +1844,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slotPrefab: {fileID: -6784270538375479308, guid: 27fce3af7aff72a4296dce3dd540118f,
     type: 3}
-  firstPosition: {x: 10.9, y: 5.5, z: 0}
+  firstPosition: {x: 8.7, y: 5.5, z: 0}
   margin: 0.2
-  columns: 2
+  columns: 3
   rows: 6
   maxPosition: 3
 --- !u!114 &699336724
@@ -1861,11 +1861,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e76fe468dea91649973e186a8d4eb68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cubePrefabs: {fileID: 5763188813260204774, guid: 7f885fa6b09dc26449c2cc272279794f,
+    type: 3}
   firstPosition: {x: 13.1, y: 8.7, z: 0}
   margin: -0.1
   speed: 50
   magnitudeMagnet: 0.4
   maxBuffer: 8
+  startCubes: 6
+  infiniteCubes: 1
 --- !u!114 &699336725
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1902,7 +1906,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e22fca3c727ddb340bbb3c861a7b9c96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  store: {fileID: 0}
 --- !u!4 &699336727
 Transform:
   m_ObjectHideFlags: 0
@@ -2434,7 +2437,7 @@ Transform:
   m_GameObject: {fileID: 907763532}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -4.5, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 20, z: 1}
+  m_LocalScale: {x: 2, y: 15, z: 1}
   m_Children: []
   m_Father: {fileID: 113052063}
   m_RootOrder: 0
@@ -3743,8 +3746,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1663351337}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.5, y: -7.1, z: 0}
-  m_LocalScale: {x: 22, y: 0.8, z: 1}
+  m_LocalPosition: {x: 5.3, y: -7.1, z: 0}
+  m_LocalScale: {x: 17.6, y: 0.8, z: 1}
   m_Children: []
   m_Father: {fileID: 113052063}
   m_RootOrder: 2
@@ -4077,8 +4080,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1780099406}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.5, y: 7.1, z: 0}
-  m_LocalScale: {x: 22, y: 0.8, z: 1}
+  m_LocalPosition: {x: 5.3, y: 7.1, z: 0}
+  m_LocalScale: {x: 17.6, y: 0.8, z: 1}
   m_Children: []
   m_Father: {fileID: 113052063}
   m_RootOrder: 1
