@@ -27,7 +27,8 @@ public class Slot : MonoBehaviour
 
 	void Start()
 	{
-		UpdateState();
+		SetEmpty(true);
+		SetAvailable(true);
 	}
 
 	void OnMouseDown()
@@ -36,11 +37,9 @@ public class Slot : MonoBehaviour
 			return;
 
 		if (empty)
-			empty = !builder.AddCube(column, row);
+			SetEmpty(!builder.AddCube(column, row));
 		else
-			empty = builder.RemoveCube(column, row);
-
-		UpdateState();
+			SetEmpty(builder.RemoveCube(column, row));
 	}
 
 	public void SetAvailable(bool value)
@@ -49,9 +48,9 @@ public class Slot : MonoBehaviour
 		UpdateState();
 	}
 
-	public void SetEmpty()
+	public void SetEmpty(bool value)
 	{
-		empty = true;
+		empty = value;
 		UpdateState();
 	}
 

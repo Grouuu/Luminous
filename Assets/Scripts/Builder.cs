@@ -13,6 +13,7 @@ public class Builder : MonoBehaviour
 
 	protected Store store;
 	protected Grid grid;
+
 	protected Slot[] slots;
 	protected List<Slot> selectedSlots = new List<Slot>();
 
@@ -27,7 +28,6 @@ public class Builder : MonoBehaviour
 	void Start()
 	{
 		CreateSlots();
-		EmptySlots();
 	}
 
 	void Update()
@@ -38,6 +38,9 @@ public class Builder : MonoBehaviour
 
 	public bool AddCube(int column, int row)
 	{
+		if (!CheckSlotValid(column, row))
+			return false;
+
 		if (!store.SelectCube())
 			return false;
 
@@ -62,27 +65,39 @@ public class Builder : MonoBehaviour
 		return true;
 	}
 
+	protected bool CheckSlotValid(int column, int row)
+	{
+		if (selectedSlots.Count == 0)
+			return true;
+
+		for (int c = Mathf.Max(0, column - 1); c <= Mathf.Min(columns - 1, column + 1); c++)
+			for (int r = Mathf.Max(0, row - 1); r <= Mathf.Min(rows - 1, row + 1); r++)
+				if (!(c == column && r == row) && !(c != column && r != row) && selectedSlots.Contains(GetSlot(c, r)))
+					return true;
+
+		return false;
+	}
+
 	protected void RestrictSlots()
 	{
 		int[,] positions = new int[columns, rows];
 
 		foreach (Slot slot in selectedSlots)
 		{
-			for (int column = -1; column < columns; column++)
+			for (int column = 0; column < columns; column++)
 			{
 				for (int row = -1; row <= 1; row++)
 				{
-					int targetCol = slot.column + column;
 					int targetRow = slot.row + row;
 
-					if (targetCol >= 0 && targetCol < columns && targetRow >= 0 && targetRow < rows)
-						positions[targetCol, targetRow]++;
+					if (targetRow >= 0 && targetRow < rows)
+						positions[column, targetRow]++;
 				}
 			}
 		}
 
 		foreach (Slot slot in slots)
-			slot.SetAvailable(positions[slot.column, slot.row] == selectedSlots.Count);
+		slot.SetAvailable(positions[slot.column, slot.row] == selectedSlots.Count);
 	}
 
 	protected void CreateSlots()
@@ -108,10 +123,12 @@ public class Builder : MonoBehaviour
 
 	protected void Release()
 	{
-		Stack<Cube> cubes = store.RemoveSelectedCubes();
+		Vector2Int[] positions = new Vector2Int[selectedSlots.Count];
 
-		foreach(Slot slot in selectedSlots)
-			grid.AddCube(cubes.Pop(), grid.columns - (columns - slot.column), slot.row);
+		for (int index = 0; index < selectedSlots.Count; index++)
+			positions[index] = new Vector2Int(grid.columns - columns + selectedSlots[index].column, selectedSlots[index].row);
+
+		grid.AddTriomino(positions, store.RemoveSelectedCubes());
 
 		added = 0;
 		selectedSlots = new List<Slot>();
@@ -122,7 +139,7 @@ public class Builder : MonoBehaviour
 	protected void EmptySlots()
 	{
 		foreach (Slot slot in slots)
-			slot.SetEmpty();
+			slot.SetEmpty(true);
 	}
 
 	protected Slot GetSlot(int column, int row)

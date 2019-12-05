@@ -8,8 +8,8 @@ public class Cube : MonoBehaviour
 
 	protected Rigidbody rb;
 	protected Store store;
-	protected bool free = true;
-	protected bool available = true;
+	protected bool free;
+	protected bool available;
 
 	protected Transform bg_enable;
 	protected Transform bg_disable;
@@ -25,6 +25,12 @@ public class Cube : MonoBehaviour
 		UpdateState();
 	}
 
+	void Start()
+	{
+		SetFree(true);
+		SetAvailable(true);
+	}
+
 	void Update()
 	{
 		if (free)
@@ -37,6 +43,7 @@ public class Cube : MonoBehaviour
 			return;
 
 		free = false;
+
 		bool added = store.AddCube(this);
 
 		if (!added)
