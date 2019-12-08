@@ -1826,10 +1826,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06f34d1aec0e75e4aaaf8e72dbe7c2f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firstPosition: {x: -6.7, y: 5.5, z: 0}
+  firstPosition: {x: -4.5, y: 5.5, z: 0}
   margin: -0.1
-  columns: 7
+  columns: 6
   rows: 6
+  speed: 20
+  magnitudeMagnet: 0.4
 --- !u!114 &699336723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1867,7 +1869,7 @@ MonoBehaviour:
   margin: -0.1
   speed: 50
   magnitudeMagnet: 0.4
-  maxBuffer: 8
+  maxBuffer: 9
   startCubes: 6
   infiniteCubes: 1
 --- !u!114 &699336725
@@ -1884,9 +1886,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cubePrefabs: {fileID: 5763188813260204774, guid: 7f885fa6b09dc26449c2cc272279794f,
     type: 3}
-  baseDelay: 2
-  baseRandom: 1
-  speed: 20
+  baseDelay: 1
+  baseRandom: 0
+  speed: 15
   playgroundBounds:
     serializedVersion: 2
     x: -14

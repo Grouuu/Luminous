@@ -51,6 +51,7 @@ public class Store : MonoBehaviour
 
 		// TODO: add cube into the array when the animation ended?
 
+		cube.speed = 0;
 		cubes.Add(cube);
 		return true;
 	}
@@ -81,6 +82,17 @@ public class Store : MonoBehaviour
 
 	public Stack<Cube> RemoveSelectedCubes()
 	{
+		Stack<Cube> selectedCubes = new Stack<Cube>();
+
+		if (selected > 0)
+		{
+			for (int index = 0; index < selected; index++)
+			{
+				selectedCubes.Push(cubes[0]);
+				cubes.RemoveAt(0);
+			}
+		}
+
 		// Debug
 
 		if (infiniteCubes)
@@ -88,17 +100,6 @@ public class Store : MonoBehaviour
 				AddCube(CreateFakeCube(cubes.Count - 1 - index));
 
 		//
-
-		Stack<Cube> selectedCubes = new Stack<Cube>();
-
-		if (selected > 0)
-		{
-			for (int index = 0; index < selected; index++)
-				selectedCubes.Push(cubes[index]);
-
-			for (int index = 0; index < selected; index++)
-				cubes.RemoveAt(0);
-		}
 
 		selected = 0;
 
@@ -111,7 +112,6 @@ public class Store : MonoBehaviour
 	protected Cube CreateFakeCube(int index)
 	{
 		Cube cube = Cube.Instantiate(cubePrefabs);
-		cube.SetFree(false);
 		cube.transform.position = new Vector3(firstPosition.x - (cube.GetComponent<BoxCollider>().bounds.size.x + margin) * index, firstPosition.y, 0);
 		return cube;
 	}

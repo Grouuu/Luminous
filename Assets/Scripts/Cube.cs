@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class Cube : MonoBehaviour
 {
-	[HideInInspector] public float speed;
+	[HideInInspector] public float speed = 0;
 
 	protected Rigidbody rb;
 	protected Store store;
-	protected bool free;
-	protected bool available;
+
+	protected bool interactive = true;
+	protected bool available = true;
 
 	protected Transform bg_enable;
 	protected Transform bg_disable;
@@ -27,26 +28,20 @@ public class Cube : MonoBehaviour
 
 	void Start()
 	{
-		SetFree(true);
-		SetAvailable(true);
+		UpdateState();
 	}
 
 	void Update()
 	{
-		if (free)
-			rb.position += new Vector3(0, speed, 0) * Time.deltaTime;
+		rb.position += new Vector3(0, speed, 0) * Time.deltaTime;
 	}
 
 	void OnMouseDown()
 	{
-		if (!free)
+		if (!interactive)
 			return;
 
-		free = false;
-
-		bool added = store.AddCube(this);
-
-		if (!added)
+		if (!store.AddCube(this))
 			Destroy(gameObject);
 	}
 
@@ -61,9 +56,9 @@ public class Cube : MonoBehaviour
 		UpdateState();
 	}
 
-	public void SetFree(bool value)
+	public void SetInteractive(bool value)
 	{
-		free = value;
+		interactive = value;
 	}
 
 	protected void UpdateState()

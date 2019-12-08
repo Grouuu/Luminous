@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Grid : MonoBehaviour
 {
@@ -8,11 +9,11 @@ public class Grid : MonoBehaviour
 	public float margin;
 	public int columns;
 	public int rows;
+	public float speed;
+	public float magnitudeMagnet;
 
 	protected Cube[] grid;
-	protected List<Cube[]> triominos = new List<Cube[]>();
-
-	protected int deadColumns = 1;
+	protected List<List<Cube>> groups = new List<List<Cube>>();
 
 	void Awake()
 	{
@@ -21,81 +22,151 @@ public class Grid : MonoBehaviour
 
 	void Update()
 	{
-		for (int column = 0; column < columns; column++)
+		foreach (Cube cube in grid)
 		{
-			for (int row = 0; row < rows; row++)
+			if (!cube)
+				continue;
+
+			Vector2Int gridPosition = GetCubePosition(cube);
+			Vector3 targetPosition = GetCellPosition(cube, gridPosition.x, gridPosition.y);
+
+			if (cube.transform.position == targetPosition)
+				continue;
+
+			Vector3 direction = targetPosition - cube.transform.position;
+
+			if (direction.magnitude > magnitudeMagnet)
+				cube.transform.position += direction.normalized * speed * Time.deltaTime;
+			else
+				cube.transform.position = targetPosition;
+		}
+	}
+
+	protected void UpdateCubePosition(Cube cube)
+	{
+		// TODO
+	}
+
+	protected void UpdateGroupsTargetPositions()
+	{
+		foreach (List<Cube> group in groups)
+		{
+			int minEmptyColumns = int.MaxValue;
+
+			foreach (Cube cube in group)
 			{
-				Cube cube = GetCell(column, row);
+				Vector2Int position = GetCubePosition(cube);
+				int col = position.x;
+				int counter = 0;
 
-				if (cube)
+				while (--col > -1)
 				{
-					MoveToEmpty(column, row);
-
-					Vector3 target = GetCellPosition(cube, column, row);
-					Vector3 direction = target - cube.transform.position;
-
-					if (direction.magnitude > 0.4f)
-						cube.transform.position += direction.normalized * 20 * Time.deltaTime;
+					Cube c = GetCellCube(col, position.y);
+					if (!c || group.Contains(c))
+						counter++;
 					else
-						cube.transform.position = target;
+						break;
+				}
+
+				minEmptyColumns = Mathf.Min(minEmptyColumns, counter);
+			}
+
+			if (minEmptyColumns > 0)
+			{
+				foreach (Cube cube in group)
+				{
+					Vector2Int position = GetCubePosition(cube);
+					// BUG : return -1/-1 sometimes
+					Debug.Log("FROM " + position.x + "/" + position.y);
+					SetCellCube(position.x, position.y, null);
+					position.x -= minEmptyColumns;
+					Debug.Log("TO " + position.x + "/" + position.y);
+					SetCellCube(position.x, position.y, cube);
 				}
 			}
 		}
 	}
 
-	public void AddTriomino(Vector2Int[] positions, Stack<Cube> cubes)
+	public void AddGroup(Vector2Int[] positions, Stack<Cube> cubes)
 	{
+		List<Cube> group = new List<Cube>();
+
 		foreach (Vector2Int position in positions)
-			AddCube(cubes.Pop(), position.x, position.y);
-	}
-
-	protected void AddCube(Cube cube, int column, int row)
-	{
-		if (!GetCell(column, row))
 		{
-			SetCell(column, row, cube);
-			cube.transform.position = GetCellPosition(cube, column, row);
+			Cube cube = cubes.Pop();
+			if (AddCube(cube, position.x, position.y))
+				group.Add(cube);
 		}
-		else
+
+		if (group.Count > 0)
 		{
-			Debug.Log("DESTROY");
-			Destroy(cube.gameObject);
-		}
-	}
+			groups.Add(group);
 
-	protected void MoveToEmpty(int column, int row)
-	{
-		Cube cube = GetCell(column, row);
-
-		if (!cube)
-			return;
-
-		for (int index = deadColumns; index < column; index++)
-		{
-			if(!GetCell(index, row))
+			try
 			{
-				SetCell(column, row, null);
-				SetCell(index, row, cube);
-				return;
+				UpdateGroupsTargetPositions();
+			}
+			catch (Exception e)
+			{
+				Debug.LogError(e);
 			}
 		}
 	}
 
-	protected Vector3 GetCellPosition(Cube cube, int column, int row)
+	protected bool AddCube(Cube cube, int column, int row)
+	{
+		// TODO prevents to add cube at the left of an already added cube
+
+		// BUG
+
+		if (!GetCellCube(column, row))
+		{
+			SetCellCube(column, row, cube);
+			cube.transform.position = GetCellPosition(cube, column, row);
+			return true;
+		}
+		else
+		{
+			Debug.LogWarning("DESTROY");
+			Destroy(cube.gameObject);
+		}
+		return false;
+	}
+
+	protected List<Cube> GetGroup(Cube cube)
+	{
+		foreach (List<Cube> group in groups)
+			foreach (Cube c in group)
+				if (c == cube)
+					return group;
+		return null;
+	}
+
+	protected Vector3 GetCellPosition(Cube templateCube, int column, int row)
 	{
 		return new Vector3(
-			firstPosition.x + (cube.GetComponent<BoxCollider>().bounds.size.x + margin) * column,
-			firstPosition.y - (cube.GetComponent<BoxCollider>().bounds.size.y + margin) * row,
+			firstPosition.x + (templateCube.GetComponent<BoxCollider>().bounds.size.x + margin) * column,
+			firstPosition.y - (templateCube.GetComponent<BoxCollider>().bounds.size.y + margin) * row,
 			0
 		);
 	}
 
-	protected void SetCell(int column, int row, Cube cube)
+	protected Vector2Int GetCubePosition(Cube cube)
+	{
+		for (int column = 0; column < columns; column++)
+			for (int row = 0; row < rows; row++)
+				if (GetCellCube(column, row) == cube)
+					return new Vector2Int(column, row);
+
+		return new Vector2Int(-1, -1);
+	}
+
+	protected void SetCellCube(int column, int row, Cube cube)
 	{
 		grid[column + row * columns] = cube;
 	}
 
-	protected Cube GetCell(int column, int row)
+	protected Cube GetCellCube(int column, int row)
 	{
 		return grid[column + row * columns];
 	}

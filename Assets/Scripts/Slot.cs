@@ -9,7 +9,7 @@ public class Slot : MonoBehaviour
 
 	protected Builder builder;
 
-	protected bool empty = true;
+	protected bool selected = false;
 	protected bool available = true;
 
 	protected Transform bg_empty;
@@ -27,8 +27,7 @@ public class Slot : MonoBehaviour
 
 	void Start()
 	{
-		SetEmpty(true);
-		SetAvailable(true);
+		UpdateState();
 	}
 
 	void OnMouseDown()
@@ -36,10 +35,10 @@ public class Slot : MonoBehaviour
 		if (!available)
 			return;
 
-		if (empty)
-			SetEmpty(!builder.AddCube(column, row));
+		if (selected)
+			builder.UnselectSlot(column, row);
 		else
-			SetEmpty(builder.RemoveCube(column, row));
+			builder.SelectSlot(column, row);
 	}
 
 	public void SetAvailable(bool value)
@@ -48,9 +47,9 @@ public class Slot : MonoBehaviour
 		UpdateState();
 	}
 
-	public void SetEmpty(bool value)
+	public void SetSelected(bool value)
 	{
-		empty = value;
+		selected = value;
 		UpdateState();
 	}
 
@@ -63,7 +62,7 @@ public class Slot : MonoBehaviour
 			bg_full.gameObject.SetActive(false);
 			bg_disable.gameObject.SetActive(true);
 		}
-		else if (!empty)
+		else if (selected)
 		{
 			// full
 			bg_empty.gameObject.SetActive(false);

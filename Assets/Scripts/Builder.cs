@@ -15,9 +15,7 @@ public class Builder : MonoBehaviour
 	protected Grid grid;
 
 	protected Slot[] slots;
-	protected List<Slot> selectedSlots = new List<Slot>();
-
-	protected int added = 0;
+	protected List<Slot> selectedSlots;
 
 	void Awake()
 	{
@@ -28,6 +26,7 @@ public class Builder : MonoBehaviour
 	void Start()
 	{
 		CreateSlots();
+		Reset();
 	}
 
 	void Update()
@@ -36,68 +35,83 @@ public class Builder : MonoBehaviour
 			Release();
 	}
 
-	public bool AddCube(int column, int row)
+	public bool SelectSlot(int column, int row)
 	{
-		if (!CheckSlotValid(column, row))
-			return false;
-
 		if (!store.SelectCube())
 			return false;
 
-		added++;
-		selectedSlots.Add(GetSlot(column, row));
+		Slot slot = GetSlot(column, row);
+		slot.SetSelected(true);
+		selectedSlots.Add(slot);
 		RestrictSlots();
-
 		return true;
 	}
 
-	public bool RemoveCube(int column, int row)
+	public bool UnselectSlot(int column, int row)
 	{
 		if (!store.UnselectCube())
 			return false;
 
-		if (added > 0)
-			added--;
-
-		selectedSlots.Remove(GetSlot(column, row));
+		Slot slot = GetSlot(column, row);
+		slot.SetSelected(false);
+		selectedSlots.Remove(slot);
 		RestrictSlots();
-
 		return true;
-	}
-
-	protected bool CheckSlotValid(int column, int row)
-	{
-		if (selectedSlots.Count == 0)
-			return true;
-
-		for (int c = Mathf.Max(0, column - 1); c <= Mathf.Min(columns - 1, column + 1); c++)
-			for (int r = Mathf.Max(0, row - 1); r <= Mathf.Min(rows - 1, row + 1); r++)
-				if (!(c == column && r == row) && !(c != column && r != row) && selectedSlots.Contains(GetSlot(c, r)))
-					return true;
-
-		return false;
 	}
 
 	protected void RestrictSlots()
 	{
+		AvailableAllSlots();
+
+		if (selectedSlots.Count == 0)
+			return;
+
 		int[,] positions = new int[columns, rows];
 
 		foreach (Slot slot in selectedSlots)
 		{
-			for (int column = 0; column < columns; column++)
-			{
-				for (int row = -1; row <= 1; row++)
-				{
-					int targetRow = slot.row + row;
-
-					if (targetRow >= 0 && targetRow < rows)
-						positions[column, targetRow]++;
-				}
-			}
+			for (int c = Mathf.Max(0, slot.column - 1); c <= Mathf.Min(columns - 1, slot.column + 1); c++)
+				for (int r = Mathf.Max(0, slot.row - 1); r <= Mathf.Min(rows - 1, slot.row + 1); r++)
+					if (!(c != slot.column && r != slot.row))
+						positions[c, r]++;
 		}
 
 		foreach (Slot slot in slots)
-		slot.SetAvailable(positions[slot.column, slot.row] == selectedSlots.Count);
+		{
+			if (positions[slot.column, slot.row] == 0)
+				slot.SetAvailable(false);
+		}
+	}
+
+	protected void Release()
+	{
+		// TODO do not remove from store non added cubes
+
+		int maxCol = 0;
+		int minCol = columns - 1;
+
+		foreach (Slot slot in selectedSlots)
+		{
+			maxCol = Mathf.Max(maxCol, slot.column);
+			minCol = Mathf.Min(minCol, slot.column);
+		}
+
+		int widthGroup = maxCol - minCol + 1;
+		Vector2Int[] positions = new Vector2Int[selectedSlots.Count];
+
+		for (int index = 0; index < selectedSlots.Count; index++)
+			positions[index] = new Vector2Int(grid.columns - widthGroup + (selectedSlots[index].column - minCol), selectedSlots[index].row);
+
+		grid.AddGroup(positions, store.RemoveSelectedCubes());
+		Reset();
+	}
+
+	protected void Reset()
+	{
+		selectedSlots = new List<Slot>();
+		UnselectAllSlots();
+		AvailableAllSlots();
+		RestrictSlots();
 	}
 
 	protected void CreateSlots()
@@ -116,30 +130,22 @@ public class Builder : MonoBehaviour
 				);
 				slot.column = column;
 				slot.row = row;
+
 				slots[column + row * columns] = slot;
 			}
-		}		
+		}
 	}
 
-	protected void Release()
-	{
-		Vector2Int[] positions = new Vector2Int[selectedSlots.Count];
-
-		for (int index = 0; index < selectedSlots.Count; index++)
-			positions[index] = new Vector2Int(grid.columns - columns + selectedSlots[index].column, selectedSlots[index].row);
-
-		grid.AddTriomino(positions, store.RemoveSelectedCubes());
-
-		added = 0;
-		selectedSlots = new List<Slot>();
-		EmptySlots();
-		RestrictSlots();
-	}
-
-	protected void EmptySlots()
+	protected void UnselectAllSlots()
 	{
 		foreach (Slot slot in slots)
-			slot.SetEmpty(true);
+			slot.SetSelected(false);
+	}
+
+	protected void AvailableAllSlots()
+	{
+		foreach (Slot slot in slots)
+			slot.SetAvailable(true);
 	}
 
 	protected Slot GetSlot(int column, int row)
