@@ -76,11 +76,14 @@ public class Grid : MonoBehaviour
 				foreach (Cube cube in group)
 				{
 					Vector2Int position = GetCubePosition(cube);
+
 					// BUG : return -1/-1 sometimes
-					Debug.Log("FROM " + position.x + "/" + position.y);
+					if (position.x == -1 && position.y == -1)
+						Debug.LogError("FROM " + position.x + "/" + position.y + " TO " + (position.x - minEmptyColumns) + "/" + position.y + " (" + minEmptyColumns + ")");
+					//
+
 					SetCellCube(position.x, position.y, null);
 					position.x -= minEmptyColumns;
-					Debug.Log("TO " + position.x + "/" + position.y);
 					SetCellCube(position.x, position.y, cube);
 				}
 			}
@@ -93,6 +96,18 @@ public class Grid : MonoBehaviour
 
 		foreach (Vector2Int position in positions)
 		{
+			bool available = true;
+
+			for (int index = position.x; index < columns; index++)
+			{
+				Cube c = GetCellCube(index, position.y);
+				if (c && !group.Contains(c))
+					available = false;
+			}
+
+			if (!available)
+				continue;
+
 			Cube cube = cubes.Pop();
 			if (AddCube(cube, position.x, position.y))
 				group.Add(cube);
@@ -115,10 +130,6 @@ public class Grid : MonoBehaviour
 
 	protected bool AddCube(Cube cube, int column, int row)
 	{
-		// TODO prevents to add cube at the left of an already added cube
-
-		// BUG
-
 		if (!GetCellCube(column, row))
 		{
 			SetCellCube(column, row, cube);

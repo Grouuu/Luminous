@@ -22,10 +22,8 @@ public class Store : MonoBehaviour
 	void Start()
 	{
 		// Debug
-
 		for (int i = 0; i < startCubes; i++)
 			AddCube(CreateFakeCube(i));
-
 		//
 	}
 
@@ -94,11 +92,9 @@ public class Store : MonoBehaviour
 		}
 
 		// Debug
-
 		if (infiniteCubes)
 			for (int index = 0; index < selected; index++)
 				AddCube(CreateFakeCube(cubes.Count - 1 - index));
-
 		//
 
 		selected = 0;
