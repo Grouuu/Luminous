@@ -5,12 +5,18 @@ using System;
 
 public class Grid : MonoBehaviour
 {
+	public Cube cubePrefab;
+	public GameObject groupPrefab;
 	public Vector3 firstPosition;
 	public float margin;
 	public int columns;
 	public int rows;
 	public float speed;
 	public float magnitudeMagnet;
+
+	[Header("Debug")]
+
+	public bool debug;
 
 	protected Cube[] grid;
 	protected List<List<Cube>> groups = new List<List<Cube>>();
@@ -40,11 +46,11 @@ public class Grid : MonoBehaviour
 			else
 				cube.transform.position = targetPosition;
 		}
-	}
 
-	protected void UpdateCubePosition(Cube cube)
-	{
-		// TODO
+		// DEBUG
+		if (debug && Input.GetKeyDown("space"))
+			RemoveLastLine();
+		//
 	}
 
 	protected void UpdateGroupsTargetPositions()
@@ -73,24 +79,23 @@ public class Grid : MonoBehaviour
 
 			if (minEmptyColumns > 0)
 			{
-				foreach (Cube cube in group)
-				{
-					Vector2Int position = GetCubePosition(cube);
-
-					// BUG : return -1/-1 sometimes
-					if (position.x == -1 && position.y == -1)
-						Debug.LogError("FROM " + position.x + "/" + position.y + " TO " + (position.x - minEmptyColumns) + "/" + position.y + " (" + minEmptyColumns + ")");
-					//
-
-					SetCellCube(position.x, position.y, null);
-					position.x -= minEmptyColumns;
-					SetCellCube(position.x, position.y, cube);
-				}
+				for (int column = 0; column < columns; column++)
+					for (int row = 0; row < rows; row++)
+					{
+						Cube cube = GetCellCube(column, row);
+						if (cube && group.Contains(cube))
+						{
+							Vector2Int position = GetCubePosition(cube);
+							SetCellCube(position.x, position.y, null);
+							position.x -= minEmptyColumns;
+							SetCellCube(position.x, position.y, cube);
+						}
+					}
 			}
 		}
 	}
 
-	public void AddGroup(Vector2Int[] positions, Stack<Cube> cubes)
+	public int AddGroup(Vector2Int[] positions)
 	{
 		List<Cube> group = new List<Cube>();
 
@@ -108,8 +113,8 @@ public class Grid : MonoBehaviour
 			if (!available)
 				continue;
 
-			Cube cube = cubes.Pop();
-			if (AddCube(cube, position.x, position.y))
+			Cube cube = AddCube(position.x, position.y);
+			if (cube)
 				group.Add(cube);
 		}
 
@@ -126,22 +131,49 @@ public class Grid : MonoBehaviour
 				Debug.LogError(e);
 			}
 		}
+
+		return group.Count;
 	}
 
-	protected bool AddCube(Cube cube, int column, int row)
+	public void RemoveLastLine()
 	{
-		if (!GetCellCube(column, row))
-		{
-			SetCellCube(column, row, cube);
-			cube.transform.position = GetCellPosition(cube, column, row);
-			return true;
-		}
-		else
-		{
-			Debug.LogWarning("DESTROY");
-			Destroy(cube.gameObject);
-		}
-		return false;
+		for (int column = 0; column < columns; column++)
+			for (int row = 0; row < rows; row++)
+			{
+				Cube cube = GetCellCube(column, row);
+
+				// TODO if column == 0 && !c → game over
+
+				if (!cube)
+					continue;
+
+				if (column == 0)
+					RemoveCube(cube);
+				else
+				{
+					SetCellCube(column, row, null);
+					SetCellCube(column - 1, row, cube);
+				}
+			}
+	}
+
+	protected Cube AddCube(int column, int row)
+	{
+		Cube cube = Instantiate<Cube>(cubePrefab);
+		SetCellCube(column, row, cube);
+		cube.transform.position = GetCellPosition(cube, column, row);
+		return cube;
+	}
+
+	protected void RemoveCube(Cube cube)
+	{
+		List<Cube> group = GetGroup(cube);
+		group.Remove(cube);
+
+		if (group.Count == 0)
+			groups.Remove(group);
+
+		Destroy(cube.gameObject);
 	}
 
 	protected List<Cube> GetGroup(Cube cube)
@@ -156,8 +188,8 @@ public class Grid : MonoBehaviour
 	protected Vector3 GetCellPosition(Cube templateCube, int column, int row)
 	{
 		return new Vector3(
-			firstPosition.x + (templateCube.GetComponent<BoxCollider>().bounds.size.x + margin) * column,
-			firstPosition.y - (templateCube.GetComponent<BoxCollider>().bounds.size.y + margin) * row,
+			firstPosition.x + (templateCube.GetComponent<MeshRenderer>().bounds.size.x + margin) * column,
+			firstPosition.y - (templateCube.GetComponent<MeshRenderer>().bounds.size.y + margin) * row,
 			0
 		);
 	}

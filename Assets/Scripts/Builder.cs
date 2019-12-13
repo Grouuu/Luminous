@@ -85,8 +85,6 @@ public class Builder : MonoBehaviour
 
 	protected void Release()
 	{
-		// TODO do not remove from store non added cubes
-
 		int maxCol = 0;
 		int minCol = columns - 1;
 
@@ -102,7 +100,7 @@ public class Builder : MonoBehaviour
 		for (int index = 0; index < selectedSlots.Count; index++)
 			positions[index] = new Vector2Int(grid.columns - widthGroup + (selectedSlots[index].column - minCol), selectedSlots[index].row);
 
-		grid.AddGroup(positions, store.RemoveSelectedCubes());
+		store.RemoveCubes(grid.AddGroup(positions));
 		Reset();
 	}
 
@@ -124,8 +122,8 @@ public class Builder : MonoBehaviour
 			{
 				Slot slot = Instantiate(slotPrefab);
 				slot.transform.position = new Vector3(
-					firstPosition.x + (slot.GetComponent<BoxCollider>().bounds.size.x + margin) * column,
-					firstPosition.y - (slot.GetComponent<BoxCollider>().bounds.size.y + margin) * row,
+					firstPosition.x + (slot.GetComponent<MeshRenderer>().bounds.size.x + margin) * column,
+					firstPosition.y - (slot.GetComponent<MeshRenderer>().bounds.size.y + margin) * row,
 					0
 				);
 				slot.column = column;

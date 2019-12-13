@@ -43,10 +43,11 @@ public class Spawner : MonoBehaviour
 	protected void SpawnCube()
 	{
 		Cube cube = Instantiate<Cube>(cubePrefabs);
+		cube.SetInteractive(true);
 		cube.speed = speed;
 		cube.transform.position = new Vector3(
 			Random.Range(playgroundBounds.x, playgroundBounds.x + playgroundBounds.width),
-			playgroundBounds.y - cube.GetComponent<BoxCollider>().bounds.size.y,
+			playgroundBounds.y - cube.GetComponent<MeshRenderer>().bounds.size.y,
 			0
 		);
 	}

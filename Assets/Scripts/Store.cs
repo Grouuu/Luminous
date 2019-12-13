@@ -23,16 +23,16 @@ public class Store : MonoBehaviour
 	{
 		// Debug
 		for (int i = 0; i < startCubes; i++)
-			AddCube(CreateFakeCube(i));
+			AddCube();
 		//
 	}
 
 	void Update()
 	{
-		for (int position = 0; position < cubes.Count; position++)
+		for (int index = 0; index < cubes.Count; index++)
 		{
-			Cube cube = cubes[position];
-			Vector3 target = new Vector3(firstPosition.x - (cube.GetComponent<BoxCollider>().bounds.size.x + margin) * position, firstPosition.y, 0);
+			Cube cube = cubes[index];
+			Vector3 target = GetIndexPosition(index, cube);
 			Vector3 direction = target - cube.transform.position;
 
 			if (direction.magnitude > magnitudeMagnet)
@@ -42,16 +42,46 @@ public class Store : MonoBehaviour
 		}
 	}
 
-	public bool AddCube(Cube cube)
+	public Vector3 AddCube()
 	{
 		if (cubes.Count >= maxBuffer)
-			return false;
+			return Vector3.positiveInfinity;
 
-		// TODO: add cube into the array when the animation ended?
-
-		cube.speed = 0;
+		int index = maxBuffer + 1;
+		Cube cube = Instantiate<Cube>(cubePrefabs);
+		cube.transform.position = GetIndexPosition(index, cube);
 		cubes.Add(cube);
-		return true;
+		return GetIndexPosition(index, cube);
+	}
+
+	public Vector3 RemoveCube()
+	{
+		if (cubes.Count < 1)
+			return Vector3.positiveInfinity;
+
+		int index = 0;
+		Cube cube = cubes[0];
+		cubes.Remove(cube);
+		Vector3 position = GetIndexPosition(index, cube);
+		Destroy(cube.gameObject);
+
+		if (selected > 0)
+			selected--;
+
+		// Debug
+		if (infiniteCubes)
+			AddCube();
+		//
+
+		return position;
+	}
+
+	public void RemoveCubes(int nb)
+	{
+		for (int i = 0; i < nb; i++)
+			RemoveCube();
+
+		while (UnselectCube()) {}
 	}
 
 	public bool SelectCube()
@@ -78,37 +108,8 @@ public class Store : MonoBehaviour
 		return false;
 	}
 
-	public Stack<Cube> RemoveSelectedCubes()
+	protected Vector3 GetIndexPosition(int index, Cube templateCube)
 	{
-		Stack<Cube> selectedCubes = new Stack<Cube>();
-
-		if (selected > 0)
-		{
-			for (int index = 0; index < selected; index++)
-			{
-				selectedCubes.Push(cubes[0]);
-				cubes.RemoveAt(0);
-			}
-		}
-
-		// Debug
-		if (infiniteCubes)
-			for (int index = 0; index < selected; index++)
-				AddCube(CreateFakeCube(cubes.Count - 1 - index));
-		//
-
-		selected = 0;
-
-		return selectedCubes;
-	}
-
-	/**
-	 * Debug
-	 * */
-	protected Cube CreateFakeCube(int index)
-	{
-		Cube cube = Cube.Instantiate(cubePrefabs);
-		cube.transform.position = new Vector3(firstPosition.x - (cube.GetComponent<BoxCollider>().bounds.size.x + margin) * index, firstPosition.y, 0);
-		return cube;
+		return new Vector3(firstPosition.x - (templateCube.GetComponent<MeshRenderer>().bounds.size.x + margin) * index, firstPosition.y, 0);
 	}
 }

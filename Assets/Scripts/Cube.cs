@@ -9,7 +9,7 @@ public class Cube : MonoBehaviour
 	protected Rigidbody rb;
 	protected Store store;
 
-	protected bool interactive = true;
+	protected bool interactive = false;
 	protected bool available = true;
 
 	protected Transform bg_enable;
@@ -33,7 +33,8 @@ public class Cube : MonoBehaviour
 
 	void Update()
 	{
-		rb.position += new Vector3(0, speed, 0) * Time.deltaTime;
+		if (speed > 0)
+			rb.position += new Vector3(0, speed, 0) * Time.deltaTime;
 	}
 
 	void OnMouseDown()
@@ -41,8 +42,16 @@ public class Cube : MonoBehaviour
 		if (!interactive)
 			return;
 
-		if (!store.AddCube(this))
+		Vector3 position = store.AddCube();
+
+		if (position == Vector3.positiveInfinity)
+		{
 			Destroy(gameObject);
+		}
+		else
+		{
+			Destroy(gameObject);
+		}
 	}
 
 	void OnBecameInvisible()
