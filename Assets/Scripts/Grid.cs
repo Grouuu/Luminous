@@ -18,16 +18,25 @@ public class Grid : MonoBehaviour
 
 	public bool debug;
 
+	protected GameController controller;
+
 	protected Cube[] grid;
 	protected List<List<Cube>> groups = new List<List<Cube>>();
 
+	protected bool paused = false;
+
 	void Awake()
 	{
+		controller = FindObjectOfType<GameController>();
+
 		grid = new Cube[columns * rows];
 	}
 
 	void Update()
 	{
+		if (paused)
+			return;
+
 		foreach (Cube cube in grid)
 		{
 			if (!cube)
@@ -51,6 +60,11 @@ public class Grid : MonoBehaviour
 		if (debug && Input.GetKeyDown("space"))
 			RemoveLastLine();
 		//
+	}
+
+	public void Stop()
+	{
+		paused = true;
 	}
 
 	protected void UpdateGroupsTargetPositions()
@@ -145,7 +159,12 @@ public class Grid : MonoBehaviour
 				// TODO if column == 0 && !c → game over
 
 				if (!cube)
+				{
+					if (column == 0)
+						controller.GameOver();
+
 					continue;
+				}
 
 				if (column == 0)
 					RemoveCube(cube);

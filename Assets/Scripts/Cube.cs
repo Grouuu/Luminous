@@ -59,6 +59,12 @@ public class Cube : MonoBehaviour
 		Destroy(gameObject);
 	}
 
+	public void Stop()
+	{
+		speed = 0;
+		interactive = false;
+	}
+
 	public void SetAvailable(bool value)
 	{
 		available = value;

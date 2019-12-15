@@ -19,6 +19,8 @@ public class Store : MonoBehaviour
 	protected List<Cube> cubes = new List<Cube>();
 	protected int selected = 0;
 
+	protected bool paused = false;
+
 	void Start()
 	{
 		// Debug
@@ -29,6 +31,9 @@ public class Store : MonoBehaviour
 
 	void Update()
 	{
+		if (paused)
+			return;
+
 		for (int index = 0; index < cubes.Count; index++)
 		{
 			Cube cube = cubes[index];
@@ -40,6 +45,11 @@ public class Store : MonoBehaviour
 			else
 				cube.transform.position = target;
 		}
+	}
+
+	public void Stop()
+	{
+		paused = true;
 	}
 
 	public Vector3 AddCube()

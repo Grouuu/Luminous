@@ -17,6 +17,8 @@ public class Builder : MonoBehaviour
 	protected Slot[] slots;
 	protected List<Slot> selectedSlots;
 
+	protected bool paused = false;
+
 	void Awake()
 	{
 		store = FindObjectOfType<Store>();
@@ -35,9 +37,14 @@ public class Builder : MonoBehaviour
 			Release();
 	}
 
+	public void Stop()
+	{
+		paused = true;
+	}
+
 	public bool SelectSlot(int column, int row)
 	{
-		if (!store.SelectCube())
+		if (!store.SelectCube() || paused)
 			return false;
 
 		Slot slot = GetSlot(column, row);
@@ -49,7 +56,7 @@ public class Builder : MonoBehaviour
 
 	public bool UnselectSlot(int column, int row)
 	{
-		if (!store.UnselectCube())
+		if (!store.UnselectCube() || paused)
 			return false;
 
 		Slot slot = GetSlot(column, row);

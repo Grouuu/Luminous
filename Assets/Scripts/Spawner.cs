@@ -11,11 +11,6 @@ public class Spawner : MonoBehaviour
 	public Rect playgroundBounds;
 	public bool debug;
 
-	void Start()
-	{
-		StartSpawn();
-	}
-
 	void Update()
 	{
 		if (debug)
@@ -31,6 +26,11 @@ public class Spawner : MonoBehaviour
 	{
 		SpawnCube();
 		StartCoroutine("SpawnTimer");
+	}
+
+	public void StopSpawn()
+	{
+		StopCoroutine("SpawnTimer");
 	}
 
 	protected IEnumerator SpawnTimer()
